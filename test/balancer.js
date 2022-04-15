@@ -18,7 +18,7 @@ const setTokens = async (token, slot, address, balance) => {
     [address, slot] // key, slot
   )
   // Manipulate local balance (needs to be bytes32 string)
-  await setStorageAt(
+  return setStorageAt(
     token,
     index.toString(),
     toBytes32(locallyManipulatedBalance).toString()
@@ -40,47 +40,35 @@ describe('Balancer', function () {
     balancer = await Balancer.deploy()
     const contractAddress = balancer.address
 
-    setTokens(WETH_ADDRESS, WETH_SLOT, contractAddress, '4000000')
-    setTokens(DAI_ADDRESS, DAI_SLOT, contractAddress, '30000000')
+    await setTokens(WETH_ADDRESS, WETH_SLOT, contractAddress, '4000000')
+    await setTokens(DAI_ADDRESS, DAI_SLOT, contractAddress, '30000000')
   })
 
-  it('Should return balance of WETH', async function () {
-    expect(await balancer.balanceWeth()).to.equal('4000000000000000000000000')
+  it('balanceOfToken: should return balance of WETH', async function () {
+    expect(await balancer.balanceOfToken(WETH_ADDRESS)).to.equal(
+      '4000000000000000000000000'
+    )
   })
-  it('Should return DAI balance', async function () {
-    expect(await balancer.balanceDai()).to.equal('30000000000000000000000000')
+  it('balanceOfToken: should return balance of DAI', async function () {
+    expect(await balancer.balanceOfToken(DAI_ADDRESS)).to.equal(
+      '30000000000000000000000000'
+    )
   })
-
-  it('Should return reduced WETH and incremented DAI balance after swap WETH for DAI', async function () {
-    await balancer.swapWethForDai(
+  it('swapTwoTokens: should return incremented WETH and reduced DAI balance after swap DAI for WETH', async function () {
+    await balancer.swapTwoTokens(
       '0x0b09dea16768f0799065c475be02919503cb2a3500020000000000000000001a',
+      DAI_ADDRESS,
+      WETH_ADDRESS,
       '1000000000000',
       '1'
     )
     balancer
-      .balanceWeth()
-      .then((balance) =>
-        expect(+balance).to.be.lessThan('4000000000000000000000000')
-      )
-    balancer
-      .balanceDai()
-      .then((balance) =>
-        expect(+balance).to.be.greaterThan('30000000000000000000000000')
-      )
-  })
-  it('Should return incremented WETH and reduced DAI balance after swap DAI for WETH', async function () {
-    await balancer.swapDaiForWeth(
-      '0x0b09dea16768f0799065c475be02919503cb2a3500020000000000000000001a',
-      '1000000000000',
-      '1'
-    )
-    balancer
-      .balanceDai()
+      .balanceOfToken(DAI_ADDRESS)
       .then((balance) =>
         expect(+balance).to.be.lessThan('30000000000000000000000000')
       )
     balancer
-      .balanceWeth()
+      .balanceOfToken(WETH_ADDRESS)
       .then((balance) =>
         expect(+balance).to.be.greaterThan('4000000000000000000000000')
       )
