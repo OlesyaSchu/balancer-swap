@@ -34,4 +34,14 @@ contract Balancer {
         });
         vault.swap(singleSwap, fundManagement, _limit, block.timestamp);
     }
+
+    function getId(address _id) public view returns (bytes32) {
+        IBasePool pool = IBasePool(_id);
+        return pool.getPoolId();
+    }
+
+    function getTokens(address _id) public view returns (IERC20[] memory tokens, uint256[] memory balances, uint256 lastChangeBlock) {
+        bytes32 poolId = getId(_id);
+        return vault.getPoolTokens(poolId);
+    }
 }

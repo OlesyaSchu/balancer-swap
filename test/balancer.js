@@ -73,4 +73,18 @@ describe('Balancer', function () {
         expect(+balance).to.be.greaterThan('4000000000000000000000000')
       )
   })
+  it('getId: should return poolId', async function () {
+    expect(await balancer.getId('0x32296969ef14eb0c6d29669c550d4a0449130230')).to.equal(
+      '0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080'
+    )
+  })
+  it('getTokens: should return pool tokens', async function () {
+    const tokens = await balancer.getTokens('0x32296969ef14eb0c6d29669c550d4a0449130230')
+    expect(tokens[0][0]).to.equal(
+      '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0'
+    )
+    expect(tokens[0][1]).to.equal(
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+    )
+  })
 })
